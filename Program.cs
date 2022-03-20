@@ -1,13 +1,25 @@
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
 using tribal_credit_line_application.Model;
+using tribal_credit_line_application.Services;
+using tribal_credit_line_application.Util;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+builder.Services.AddDependencies();
 
 var app = builder.Build();
 
-app.MapPost("/customer/credit/application", ([FromBody] CreditLine creditLine) =>
+if (app.Environment.IsDevelopment())
 {
-    return new ApplicationResponse { status = "OK", message = "Your application was succesfully accepted.", approvedCreditLine = 13213 };   
+    app.UseSwagger();
+    app.UseSwagger();
+}
+
+app.MapPost("/customer/{id}/credit/application", ([FromServices] ApplicationService applicationService, int id, [FromBody] CreditLine creditLine) =>
+{
+    return Results.Ok(applicationService.CalculateCreditLine(id, creditLine));
 });
 
 app.Run();

@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 using System.Net;
-using tribal_credit_line_application.Model;
+using tribal_credit_line_application.Model.Response;
 using tribal_credit_line_application.Repository;
 
 namespace tribal_credit_line_application.Middleware
@@ -53,7 +53,7 @@ namespace tribal_credit_line_application.Middleware
                                 else if (reqCount >= _configuration.GetValue<int>("throttlingMaxRequestCount"))
                                 {
                                     reqCount++;
-                                    await context.Response.WriteAsJsonAsync(new ApplicationResponse { status = "ERROR", message = "A sales agent will contact you" });
+                                    await context.Response.WriteAsJsonAsync(new ContactSalesApplicationResponse());
                                     error = true;
                                 }
                             }

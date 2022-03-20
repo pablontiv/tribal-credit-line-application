@@ -1,4 +1,4 @@
-﻿namespace tribal_credit_line_application.Model
+﻿namespace tribal_credit_line_application.Model.Response
 {
     public class ApplicationResponse
     {

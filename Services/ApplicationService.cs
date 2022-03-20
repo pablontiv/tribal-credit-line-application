@@ -1,4 +1,5 @@
 ﻿using tribal_credit_line_application.Model;
+using tribal_credit_line_application.Model.Response;
 using tribal_credit_line_application.Repository;
 
 namespace tribal_credit_line_application.Services

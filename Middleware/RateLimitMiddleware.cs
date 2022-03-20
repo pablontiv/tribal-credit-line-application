@@ -10,19 +10,21 @@ namespace tribal_credit_line_application.Middleware
         private readonly RequestDelegate _next;
         private readonly IMemoryCache _cache;
         private readonly ApplicationRepository _applicationRepository;
+        private readonly IConfiguration _configuration;
 
-        public RateLimitMiddleware(IMemoryCache cache, ApplicationRepository applicationRepository, RequestDelegate next)
+        public RateLimitMiddleware(IConfiguration configuration, IMemoryCache cache, ApplicationRepository applicationRepository, RequestDelegate next)
         {
             _next = next;
             _cache = cache;
             _applicationRepository = applicationRepository;
+            _configuration = configuration;
         }
 
         public async Task InvokeAsync(HttpContext context)
         {
-            var req = context.Request;
             var error = false;
-            if (int.TryParse(req.RouteValues["id"]?.ToString(), out int id))
+
+            if (int.TryParse(context.Request.RouteValues["id"]?.ToString(), out int id))
             { 
                 _cache.TryGetValue("lastTime", out DateTime? lastTime);
                 _cache.TryGetValue("reqCount", out int reqCount);
@@ -39,23 +41,23 @@ namespace tribal_credit_line_application.Middleware
 
                     if (application != null)
                     {
-                        if (lastTime.Value.AddMinutes(2) > DateTime.Now)
+                        if (lastTime.Value.AddMinutes(_configuration.GetValue<int>("acceptedThrottlingRateLimitMinutes")) > DateTime.Now)
                         {
                             if (!application.approved)
                             {
-                                if (lastTime.Value.AddSeconds(30) > DateTime.Now)
+                                if (lastTime.Value.AddSeconds(_configuration.GetValue<int>("rejectedThrottlingRateLimitSeconds")) > DateTime.Now)
                                 {
                                     context.Response.StatusCode = (int)HttpStatusCode.TooManyRequests;
                                     error = true;
                                 }
-                                else if (reqCount >= 3)
+                                else if (reqCount >= _configuration.GetValue<int>("throttlingMaxRequestCount"))
                                 {
                                     reqCount++;
                                     await context.Response.WriteAsJsonAsync(new ApplicationResponse { status = "ERROR", message = "A sales agent will contact you" });
                                     error = true;
                                 }
                             }
-                            else if (reqCount >= 3)
+                            else if (reqCount >= _configuration.GetValue<int>("throttlingMaxRequestCount"))
                             {
                                 reqCount++;
                                 context.Response.StatusCode = (int)HttpStatusCode.TooManyRequests;

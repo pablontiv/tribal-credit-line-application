@@ -6,9 +6,11 @@ namespace tribal_credit_line_application.Services
     public class ApplicationService
     {
         private ApplicationRepository _applicationRepository;
-        public ApplicationService(ApplicationRepository applicationRepository)
+        private IConfiguration _configuration;
+        public ApplicationService(IConfiguration configuration, ApplicationRepository applicationRepository)
         {
             _applicationRepository = applicationRepository;
+            _configuration = configuration;
         }
         public ApplicationResponse CalculateCreditLine(int id, CreditLine creditLine)
         {
@@ -18,12 +20,12 @@ namespace tribal_credit_line_application.Services
             {
                 application = new ApplicationResult();
 
-                var acceptedMonthlyRevenue = creditLine.monthlyRevenue / 5;
+                var acceptedMonthlyRevenue = creditLine.monthlyRevenue / _configuration.GetValue<int>("monthlyRevenueRatio");
                 var acceptedAmount = acceptedMonthlyRevenue;
 
                 if (creditLine.foundingType == FoundingType.Startup)
                 {
-                    var acceptedCashBalance = creditLine.cashBalance / 3;
+                    var acceptedCashBalance = creditLine.cashBalance / _configuration.GetValue<int>("cashBalanceRatio");
                     acceptedAmount = acceptedMonthlyRevenue > acceptedCashBalance ? acceptedMonthlyRevenue : acceptedCashBalance;
                 }
 

@@ -7,6 +7,7 @@ using System.IO;
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 using tribal.credit.line.application.tests;
 using tribal_credit_line_application.Middleware;
@@ -16,6 +17,7 @@ using tribal_credit_line_application.Repository;
 
 namespace credit.line.application.tests;
 
+[Parallelizable(ParallelScope.All)]
 public class Tests
 {
     [Test]
@@ -110,14 +112,14 @@ public class Tests
         await using var app = new CreditLineApplication();
         var httpContext = new DefaultHttpContext();
 
-        httpContext.Request.RouteValues.Add("id", 1);
+        httpContext.Request.RouteValues.Add("id", 6);
 
         var config = (IConfiguration)app.Services.GetService(typeof(IConfiguration));
         var memcache = (IMemoryCache)app.Services.GetService(typeof(IMemoryCache));
         var repository = new ApplicationRepository();
         var applicationResult = new ApplicationResult { approved = true, resultCreditLine = 100, resultDate = DateTime.Now };
 
-        repository.Add(1, applicationResult);
+        repository.Add(6, applicationResult);
 
         memcache.Set("lastTime", DateTime.Now);
         memcache.Set("reqCount", 3);
@@ -135,14 +137,14 @@ public class Tests
         await using var app = new CreditLineApplication();
         var httpContext = new DefaultHttpContext();
 
-        httpContext.Request.RouteValues.Add("id", 1);
+        httpContext.Request.RouteValues.Add("id", 7);
 
         var config = (IConfiguration)app.Services.GetService(typeof(IConfiguration));
         var memcache = (IMemoryCache)app.Services.GetService(typeof(IMemoryCache));
         var repository = new ApplicationRepository();
         var applicationResult = new ApplicationResult { approved = false, resultCreditLine = 0, resultDate = DateTime.Now };
 
-        repository.Add(1, applicationResult);
+        repository.Add(7, applicationResult);
 
         memcache.Set("lastTime", DateTime.Now);
         memcache.Set("reqCount", 1);
@@ -161,22 +163,22 @@ public class Tests
         var httpContext = new DefaultHttpContext();
         httpContext.Response.Body = new MemoryStream();
 
-        httpContext.Request.RouteValues.Add("id", 1);
+        httpContext.Request.RouteValues.Add("id", 8);
 
         var config = (IConfiguration)app.Services.GetService(typeof(IConfiguration));
         var memcache = (IMemoryCache)app.Services.GetService(typeof(IMemoryCache));
         var repository = new ApplicationRepository();
         var applicationResult = new ApplicationResult { approved = false, resultCreditLine = 0, resultDate = DateTime.Now };
 
-        repository.Add(1, applicationResult);
+        repository.Add(8, applicationResult);
 
         memcache.Set("lastTime", DateTime.Now.Subtract(new TimeSpan(0,0,40)));
         memcache.Set("reqCount", 3);
 
         var middleware = new RateLimitMiddleware(config, memcache, repository, next: (innerHttpContext) => Task.FromResult(0));
-
-        await middleware.InvokeAsync(httpContext);
         
+        await middleware.InvokeAsync(httpContext);
+
         httpContext.Response.Body.Seek(0, SeekOrigin.Begin);
         var reader = new StreamReader(httpContext.Response.Body);
         var streamText = reader.ReadToEnd();

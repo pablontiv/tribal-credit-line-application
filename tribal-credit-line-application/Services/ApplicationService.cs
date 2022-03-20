@@ -47,7 +47,7 @@ namespace tribal_credit_line_application.Services
             }
 
             return application.approved 
-                ? new AcceptedApplicationResponse(application.resultCreditLine) 
+                ? new AcceptedApplicationResponse() 
                 : new RejectedApplicationResponse();
         }
     }

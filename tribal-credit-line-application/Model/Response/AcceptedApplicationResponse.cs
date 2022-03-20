@@ -2,12 +2,10 @@
 {
     public class AcceptedApplicationResponse: ApplicationResponse
     {
-        public double approvedCreditLine { get; set; }
-        public AcceptedApplicationResponse(double approvedCreditLine)
+        public AcceptedApplicationResponse()
         {
             status = "ACCEPTED";
             message = "Your application was succesfully accepted.";
-            this.approvedCreditLine = approvedCreditLine;
         }
     }
 }

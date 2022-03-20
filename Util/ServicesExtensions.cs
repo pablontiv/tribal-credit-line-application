@@ -9,7 +9,7 @@ namespace tribal_credit_line_application.Util
         {
             services.AddTransient<ApplicationService>();
             services.AddTransient<ApplicationRepository>();
-
+            services.AddMemoryCache();
         }
     }
 }

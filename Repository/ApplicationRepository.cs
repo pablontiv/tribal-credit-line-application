@@ -4,7 +4,7 @@ namespace tribal_credit_line_application.Repository
 {
     public class ApplicationRepository
     {
-        private readonly Dictionary<int, ApplicationResult> applications = new Dictionary<int, ApplicationResult>();
+        private static readonly Dictionary<int, ApplicationResult> applications = new();
 
         public ApplicationResult? GetById(int id)
         {

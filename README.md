@@ -53,7 +53,7 @@ This will compile the source and start the application. Then you will be able to
 The project contains a full unit test battery to check each business rule. To run the tests you will need to run the following command:
 
 ```
-dotnet test --list-tests
+dotnet test -v:n
 ```
 
 ## Credits
